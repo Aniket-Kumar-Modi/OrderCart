@@ -3,8 +3,12 @@
 }
 <div class="row" id="app">
     <div class="col-md-8">
+        <div class="form-group">
+            <label>Search</label>
+            <input class="form-control" v-model="search" />
+        </div>
         <div class="row">
-            <div class="col-md-6" v-for="p in Products">
+            <div class="col-md-6" v-for="p in Searche">
                 <div class="card">
 
                     <div class="card-header">{{p.title}} <span class="badge badge-info">Rs. {{p.price}}</span></div>
@@ -70,7 +74,8 @@
                 Carts:[],
                 CartId:0,
                 TotalCartAmount:0,
-                isActive:true
+                isActive:true,
+                search:null
             },
             mounted:function(){
                this.loadproducts();
@@ -82,6 +87,18 @@
                 }
                
 
+            },
+            computed:{
+                Searche(){
+                    if(this.search!=null){
+                        return this.Products.filter(k=> {
+                            return k.title
+                            .includes(this.search)
+                        }
+                        )}
+                    else
+                        return this.Products
+                }
             },
             methods: {
                 loadproducts() {
