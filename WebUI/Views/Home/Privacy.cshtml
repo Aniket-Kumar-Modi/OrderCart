@@ -1,0 +1,13 @@
+﻿@using Domain.Entities
+@model CartItem
+
+
+
+Status : @Model.OrderStatus &nbsp;|&nbsp;Total Order Value in Rs. @Model.TotalAmount
+<hr />
+@foreach (var i in Model.Products)
+{
+    <div>
+    Title : @i.title | Quanaity : @i.quantity
+    </div>
+}

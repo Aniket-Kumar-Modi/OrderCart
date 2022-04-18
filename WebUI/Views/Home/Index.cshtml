@@ -1,0 +1,145 @@
+﻿@{
+    ViewData["Title"] = "Product Page";
+}
+<div class="row" id="app">
+    <div class="col-md-8">
+        <div class="row">
+            <div class="col-md-6" v-for="p in Products">
+                <div class="card">
+
+                    <div class="card-header">{{p.title}} <span class="badge badge-info">Rs. {{p.price}}</span></div>
+                    <div class="card-body">
+                        {{p.description}}
+                       <!-- <img v-bind:src="p.image" class="img-fluid" />-->
+                    </div>
+                    <div class="card-footer"><button class="btn btn-primary" @@click="addToCart(p)">Add to Cart</button></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="col-md-4">
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row"><div class="col-md-12 card-header text-center font-weight-bold">Shopping Cart {{CartId}}</div></div>
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <table class="table-responsive-md table-bordered" v-if="Carts">
+                            <thead>
+                                <tr>
+                                    <th>Titile</th>
+                                    <th>Quaniaty</th>
+                                    <th>Unit Price</th>
+                                    <th>Total Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="c in Carts.products">
+                                    <td>{{c.title}}</td>
+                                    <td>{{c.quantity}}</td>
+                                    <td>{{c.price}}</td>
+                                    <td>{{ (c.price*c.quantity).toFixed(2)}}</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td>Total Price</td>
+                                    <td>Rs. {{Carts.totalAmount}}</td>
+                                </tr>
+                                <tr><td colspan='4'><div><button :disabled="isActive" class="btn btn-primary"  @@click="CheckOut()">Checkout</button></div></td></tr>
+                            </tfoot>
+                        </table>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script src="vue/vue.js"></script>
+<script src="axios/axios.js"></script>
+<script>
+    var app = new Vue({
+            el: "#app",
+            data: {
+                Products: [],
+                Carts:[],
+                CartId:0,
+                TotalCartAmount:0,
+                isActive:true
+            },
+            mounted:function(){
+               this.loadproducts();
+               
+                var p =window.localStorage.getItem('CartId');
+                if(p!= undefined){
+                    this.CartId = parseInt(window.localStorage.getItem('CartId'));
+                    this.LoadCart();
+                }
+               
+
+            },
+            methods: {
+                loadproducts() {
+                    axios.get(`/api/product`)
+                        .then(data => {
+                            this.Products = data.data
+
+                        }).catch(e=> {alert(JSON.stringify(e))})
+                },
+                addToCart (p) {
+                  var putData ={
+                      CartId:this.CartId,
+                      ProductId:p.id,
+                      ProductName:p.title,
+                      Price:p.price
+                  };
+                  axios.put(`/api/cart`,putData).then(data=>{
+                      debugger;
+                      this.Carts=data.data
+                      this.CartId=data.data.id
+                      window.localStorage.setItem('CartId',this.CartId)
+                      this.isActive=false
+                  }).catch(e=> {
+                      alert(JSON.stringify(e));
+                      
+                  })
+                },
+                RemoveFromCart(p){
+
+                },
+                CheckOut(){
+                    var putData ={
+                      CartId:this.CartId,
+                      ProductId:0,
+                      ProductName:"checkout",
+                      Price:0
+                  };
+                    axios.post(`/api/cart`,putData).then(d=>{
+                        var c=JSON.parse(JSON.stringify(this.CartId));
+                        this.CartId=0;
+                        localStorage.clear();
+                        window.location.assign("/Home/Privacy?orderId="+c);
+                    })
+                },
+                LoadCart(){
+                    var url =`/api/cart/?id=${this.CartId}`;
+                    axios.get(url).then(d=>{
+                        this.Carts=d.data
+                        this.isActive=false
+                    }).catch(e=>{
+                        this.CartId=0;
+                        localStorage.clear();
+                        this.isActive=true
+                    })
+                }
+
+            }
+
+        })
+
+</script>
