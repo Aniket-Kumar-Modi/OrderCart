@@ -15,6 +15,10 @@ This Project is crated in ASP .Net Core 5.0 by using the Clean Architecture Appr
 	
 	4. The WebUI Project is the FrontEnd of the Application OrderCart
 		Cart and products are handeled through Vue.js throug Web API
+		
+	5. After the Final Checkout of cart the  cart details is posted to the Url :https://ordercart.requestcatcher.com/test
+	
+	6. and It is also saved in Inmemory Database
 	
 			
 	
